@@ -1,66 +1,112 @@
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import SplitType from 'split-type'
 import { motion, AnimatePresence } from 'framer-motion'
-import salaModernaSera from '../assets/foto/sala-moderna-sera.webp'
 import verandaPanoramica from '../assets/foto/veranda-panoramica.webp'
+import salaModernaSera from '../assets/foto/sala-moderna-sera.webp'
 import salaArte from '../assets/foto/sala-arte-moderna.webp'
 import verandaAutunno from '../assets/foto/veranda-autunno.webp'
 import tavoloIntimo from '../assets/foto/tavolo-intimo-sera.webp'
 import salaScultura from '../assets/foto/sala-scultura-sera.webp'
+import salaTradizionale from '../assets/foto/sala-tradizionale-legno.webp'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function Location() {
   const sectionRef = useRef(null)
+  const titleRef = useRef(null)
+  const heroImageRef = useRef(null)
+  const galleryRef = useRef(null)
   const [selectedImage, setSelectedImage] = useState(null)
 
-  const images = [
-    { src: verandaPanoramica, alt: 'Veranda panoramica' },
-    { src: salaModernaSera, alt: 'Sala moderna' },
-    { src: salaArte, alt: 'Arte e design' },
-    { src: verandaAutunno, alt: 'Colori autunno' },
-    { src: tavoloIntimo, alt: 'Tavolo intimo' },
-    { src: salaScultura, alt: 'Scultura' },
+  const galleryImages = [
+    { src: salaModernaSera, alt: 'Sala moderna sera', caption: 'Design Contemporaneo' },
+    { src: salaArte, alt: 'Arte e design', caption: 'Arte e Luce' },
+    { src: verandaAutunno, alt: 'Veranda autunno', caption: 'Colori d\'Autunno' },
+    { src: tavoloIntimo, alt: 'Tavolo intimo', caption: 'Atmosfera Intima' },
+    { src: salaScultura, alt: 'Scultura', caption: 'Dettagli d\'Arte' },
+    { src: salaTradizionale, alt: 'Sala tradizionale', caption: 'Calore Alpino' },
   ]
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const galleryItems = sectionRef.current.querySelectorAll('.gallery-item')
+      // Title reveal with 3D
+      const titleSplit = new SplitType(titleRef.current, {
+        types: 'chars',
+        tagName: 'span'
+      })
 
-      galleryItems.forEach((item, i) => {
-        const randomRotation = (Math.random() - 0.5) * 10
-        const randomY = 50 + Math.random() * 100
+      gsap.fromTo(titleSplit.chars,
+        { y: 150, opacity: 0, rotateX: -90 },
+        {
+          y: 0,
+          opacity: 1,
+          rotateX: 0,
+          duration: 1.4,
+          stagger: 0.02,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: titleRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
 
+      // Hero image cinematic entrance
+      gsap.fromTo(heroImageRef.current.querySelector('img'),
+        { scale: 1.4, filter: 'brightness(0.3)' },
+        {
+          scale: 1,
+          filter: 'brightness(1)',
+          duration: 2.5,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: heroImageRef.current,
+            start: 'top 70%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
+
+      // Hero parallax
+      gsap.to(heroImageRef.current.querySelector('img'), {
+        y: -150,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroImageRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.5
+        }
+      })
+
+      // Gallery items staggered reveal
+      const galleryItems = galleryRef.current.querySelectorAll('.gallery-item')
+      galleryItems.forEach((item) => {
         gsap.fromTo(item,
-          {
-            y: randomY,
-            opacity: 0,
-            rotate: randomRotation,
-            scale: 0.8
-          },
+          { y: 80, opacity: 0, scale: 1.05 },
           {
             y: 0,
             opacity: 1,
-            rotate: randomRotation * 0.3,
             scale: 1,
-            duration: 1.2,
+            duration: 1.4,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: item,
-              start: 'top 90%',
+              start: 'top 85%',
               toggleActions: 'play none none reverse'
             }
           }
         )
 
-        // Parallax
-        gsap.to(item, {
-          y: -30 - (i % 3) * 20,
-          rotate: randomRotation * 0.1,
+        // Individual parallax on each gallery image
+        gsap.to(item.querySelector('img'), {
+          y: -40,
           ease: 'none',
           scrollTrigger: {
-            trigger: sectionRef.current,
+            trigger: item,
             start: 'top bottom',
             end: 'bottom top',
             scrub: 1.5
@@ -68,173 +114,245 @@ export default function Location() {
         })
       })
 
+      // Features
+      const features = sectionRef.current.querySelectorAll('.feature-item')
+      gsap.fromTo(features,
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          stagger: 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: features[0],
+            start: 'top 90%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
+
     }, sectionRef)
 
     return () => ctx.revert()
   }, [])
 
   return (
-    <section id="location" ref={sectionRef} className="relative py-[15vh] bg-forest overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-      <div className="absolute -top-[20vh] -right-[20vw] w-[60vw] h-[60vw] bg-gold/5 rounded-full blur-3xl" />
-
-      {/* Header - wild positioning */}
-      <div className="relative mb-[10vh]">
-        <div className="ml-[5vw] md:ml-[15vw] mr-[30vw]">
-          <span className="font-sans text-gold text-[9px] tracking-[0.5em] uppercase block mb-6">
-            1.400 metri
-          </span>
-          <h2 className="font-display text-[14vw] md:text-[10vw] text-cream leading-[0.85]">
-            Dove il tempo
-            <span className="block text-gold italic ml-[20vw]">si ferma</span>
-          </h2>
-        </div>
-
-        <div className="absolute top-[15vh] right-[5vw] w-[25vw] md:w-[18vw]">
-          <p className="font-sans text-cream/70 text-fluid-xs leading-relaxed">
-            A 2 km da Moena, tra i boschi del Latemar. Veranda vetrata
-            con vista sulle Dolomiti.
-          </p>
-        </div>
-      </div>
-
-      {/* Chaotic gallery - absolutely positioned */}
-      <div className="relative h-[200vh] md:h-[180vh]">
-        {/* Image 1 - large, top right */}
-        <div
-          className="gallery-item absolute top-0 right-[3vw] w-[70vw] md:w-[50vw] h-[60vh] cursor-pointer overflow-hidden"
-          style={{ transform: 'rotate(2deg)' }}
-          onClick={() => setSelectedImage(images[0])}
-        >
-          <img src={images[0].src} alt={images[0].alt} className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
-        </div>
-
-        {/* Image 2 - medium, left overlap */}
-        <div
-          className="gallery-item absolute top-[25vh] left-[5vw] w-[50vw] md:w-[35vw] h-[45vh] cursor-pointer overflow-hidden z-10"
-          style={{ transform: 'rotate(-4deg)' }}
-          onClick={() => setSelectedImage(images[1])}
-        >
-          <img src={images[1].src} alt={images[1].alt} className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
-        </div>
-
-        {/* Image 3 - small, floating */}
-        <div
-          className="gallery-item absolute top-[50vh] right-[25vw] w-[30vw] md:w-[22vw] h-[30vh] cursor-pointer overflow-hidden"
-          style={{ transform: 'rotate(5deg)' }}
-          onClick={() => setSelectedImage(images[2])}
-        >
-          <img src={images[2].src} alt={images[2].alt} className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
-        </div>
-
-        {/* Image 4 - wide, center */}
-        <div
-          className="gallery-item absolute top-[70vh] left-[15vw] w-[75vw] md:w-[55vw] h-[50vh] cursor-pointer overflow-hidden"
-          style={{ transform: 'rotate(-2deg)' }}
-          onClick={() => setSelectedImage(images[3])}
-        >
-          <img src={images[3].src} alt={images[3].alt} className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
-        </div>
-
-        {/* Image 5 - small, scattered */}
-        <div
-          className="gallery-item absolute top-[95vh] right-[8vw] w-[35vw] md:w-[25vw] h-[35vh] cursor-pointer overflow-hidden z-10"
-          style={{ transform: 'rotate(6deg)' }}
-          onClick={() => setSelectedImage(images[4])}
-        >
-          <img src={images[4].src} alt={images[4].alt} className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
-        </div>
-
-        {/* Image 6 - bottom left */}
-        <div
-          className="gallery-item absolute top-[120vh] left-[3vw] w-[55vw] md:w-[40vw] h-[50vh] cursor-pointer overflow-hidden"
-          style={{ transform: 'rotate(-3deg)' }}
-          onClick={() => setSelectedImage(images[5])}
-        >
-          <img src={images[5].src} alt={images[5].alt} className="w-full h-full object-cover hover:scale-110 transition-transform duration-1000" />
-        </div>
-
-        {/* Floating text elements */}
-        <div className="absolute top-[40vh] left-[60vw] z-20 hidden md:block">
-          <span className="font-display text-[8vw] text-cream/[0.05] leading-none">
-            Latemar
-          </span>
-        </div>
-
-        <div className="absolute top-[110vh] right-[40vw] z-20">
-          <span className="font-sans text-gold text-[10px] tracking-[0.4em] uppercase"
-            style={{ writingMode: 'vertical-rl' }}
-          >
-            Dolomiti UNESCO
-          </span>
-        </div>
-      </div>
-
-      {/* Features - scattered layout */}
-      <div className="relative mt-[10vh]">
-        <div className="ml-[50vw] mr-[5vw] mb-10">
-          <span className="font-sans text-gold text-[10px] tracking-[0.4em] uppercase">
-            Servizi
-          </span>
-        </div>
-
-        <div className="relative h-[30vh]">
-          {[
-            { label: 'Parcheggio privato', left: '8vw', top: '0' },
-            { label: 'Ricarica Porsche', left: '35vw', top: '8vh' },
-            { label: 'Navetta inverno', left: '60vw', top: '2vh' },
-            { label: 'Animali ammessi', left: '25vw', top: '18vh' },
-          ].map((feature, i) => (
-            <div
-              key={feature.label}
-              className="absolute flex items-center gap-3 group"
-              style={{ left: feature.left, top: feature.top, transform: `rotate(${(i % 2 === 0 ? -1 : 1) * 2}deg)` }}
-            >
-              <span className="w-2 h-2 bg-gold/50 group-hover:bg-gold transition-colors duration-500" />
-              <span className="font-sans text-cream/80 text-fluid-xs tracking-wider group-hover:text-cream transition-colors duration-500">
-                {feature.label}
+    <section id="location" ref={sectionRef} className="relative bg-[#0a0a0a] overflow-hidden">
+      {/* Intro */}
+      <div className="px-8 md:px-16 lg:px-24 pt-40 md:pt-56 pb-20 md:pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8">
+            <div className="flex items-center gap-6 mb-10">
+              <span className="w-16 h-px bg-[#c9a962]/40" />
+              <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.6em] uppercase">
+                1.400 metri · Val di Fassa
               </span>
+            </div>
+            <h2
+              ref={titleRef}
+              className="font-display text-[11vw] md:text-[8vw] lg:text-[5vw] text-white leading-[0.95] tracking-[-0.03em]"
+              style={{ perspective: '1000px' }}
+            >
+              Dove il tempo si ferma, tra i boschi del Latemar
+            </h2>
+          </div>
+          <div className="lg:col-span-3 lg:col-start-10 flex items-end">
+            <div className="hidden lg:block">
+              <span className="font-display text-[8vw] text-white/5 leading-none block">
+                1400
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero image - fullscreen, ultra dramatic */}
+      <div className="relative h-[80vh] md:h-[95vh] overflow-hidden" ref={heroImageRef}>
+        <img
+          src={verandaPanoramica}
+          alt="Veranda panoramica sulle Dolomiti"
+          className="absolute inset-0 w-full h-[130%] object-cover"
+        />
+        {/* Luxury gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/50 via-transparent to-transparent" />
+
+        {/* Caption overlay */}
+        <div className="absolute bottom-16 md:bottom-24 left-8 md:left-16 lg:left-24">
+          <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase block mb-4">
+            La Veranda
+          </span>
+          <span className="font-display text-5xl md:text-7xl text-white leading-none block mb-3">
+            Vista Panoramica
+          </span>
+          <span className="font-serif text-white/60 text-lg italic">
+            Patrimonio UNESCO delle Dolomiti
+          </span>
+        </div>
+
+        {/* Floating altitude */}
+        <div className="absolute top-16 right-8 md:right-16 lg:right-24 text-right hidden md:block">
+          <div className="flex items-center gap-4">
+            <div>
+              <span className="font-sans text-white/30 text-[8px] tracking-[0.4em] uppercase block">
+                Altitudine
+              </span>
+            </div>
+            <div className="w-px h-12 bg-white/10" />
+            <span className="font-display text-7xl text-white/10 leading-none">
+              1400
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Description block */}
+      <div className="px-8 md:px-16 lg:px-24 py-32 md:py-48">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32">
+          <div className="lg:col-span-5">
+            <p className="font-serif text-4xl md:text-5xl text-white/90 italic leading-[1.2]">
+              A due chilometri da Moena, immerso tra i boschi del Latemar.
+            </p>
+          </div>
+          <div className="lg:col-span-5 lg:col-start-8 flex flex-col justify-center">
+            <p className="font-sans text-white/50 text-base md:text-lg leading-[2] mb-12">
+              Tre sale con personalità distinte: il calore del legno antico,
+              l'eleganza del design contemporaneo, la luce della veranda vetrata
+              con vista sulle cime dolomitiche.
+            </p>
+            <div className="flex items-center gap-8">
+              <span className="font-display text-6xl text-[#c9a962]/30 leading-none">50</span>
+              <span className="font-sans text-white/40 text-[10px] tracking-[0.4em] uppercase">Posti a sedere</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Immersive Gallery */}
+      <div className="px-8 md:px-16 lg:px-24 pb-32 md:pb-48" ref={galleryRef}>
+        <div className="mb-16 flex items-center gap-6">
+          <span className="w-12 h-px bg-[#c9a962]/40" />
+          <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+            Gli Ambienti
+          </span>
+        </div>
+
+        {/* Masonry-style gallery */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {galleryImages.map((image, i) => (
+            <div
+              key={image.alt}
+              className={`gallery-item relative overflow-hidden group cursor-pointer ${
+                i === 0 ? 'md:col-span-2 aspect-[2/1]' :
+                i === 3 ? 'md:col-span-2 lg:col-span-1 aspect-square' :
+                'aspect-[4/3]'
+              }`}
+              onClick={() => setSelectedImage(image)}
+            >
+              <img
+                src={image.src}
+                alt={image.alt}
+                className="absolute inset-0 w-full h-[120%] object-cover group-hover:scale-105 transition-transform duration-1000"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute bottom-0 left-0 right-0 p-8 translate-y-6 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700">
+                <span className="font-display text-3xl text-white leading-none block">
+                  {image.caption}
+                </span>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Wine section - different structure */}
-      <div className="relative mt-[15vh] -skew-y-1">
-        <div className="bg-cream-light py-[12vh] skew-y-1">
-          <div className="ml-[8vw] mr-[45vw] md:mr-[55vw]">
-            <span className="font-sans text-gold text-[9px] tracking-[0.4em] uppercase block mb-4">
-              La Cantina
-            </span>
-            <h3 className="font-display text-[8vw] md:text-[5vw] text-forest leading-[0.95] mb-6">
-              Vini del Territorio
-            </h3>
-            <p className="font-sans text-forest/80 text-fluid-xs leading-relaxed">
-              Il sommelier Antonio Gilli guida attraverso etichette rare
-              e abbinamenti studiati.
+      {/* Features - dramatic dark section */}
+      <div className="relative py-32 md:py-40 border-t border-white/5">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a]" />
+
+        <div className="relative px-8 md:px-16 lg:px-24">
+          <div className="mb-20">
+            <div className="flex items-center gap-6 mb-10">
+              <span className="w-12 h-px bg-[#c9a962]/40" />
+              <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                Servizi
+              </span>
+            </div>
+            <p className="font-serif text-3xl md:text-4xl text-white/80 italic max-w-xl">
+              Ogni dettaglio pensato per il vostro comfort.
             </p>
           </div>
 
-          <div className="absolute top-[8vh] right-[8vw]">
-            <div className="flex flex-wrap gap-3">
-              {['Trentino', 'Alto Adige', 'Etichette Rare'].map((tag, i) => (
-                <span
-                  key={tag}
-                  className="px-4 py-2 border border-forest/30 text-forest font-sans text-[9px] tracking-[0.2em] uppercase hover:bg-forest hover:text-cream hover:border-forest transition-all duration-500"
-                  style={{ transform: `rotate(${i % 2 === 0 ? 2 : -2}deg)` }}
-                >
-                  {tag}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-16 gap-y-12">
+            {[
+              { name: 'Parcheggio Privato', desc: 'Comodo e riservato', num: '01' },
+              { name: 'Ricarica EV', desc: 'Porsche Destination', num: '02' },
+              { name: 'Navetta Inverno', desc: 'Su richiesta', num: '03' },
+              { name: 'Pet Friendly', desc: 'Animali ammessi', num: '04' },
+            ].map((feature) => (
+              <div key={feature.name} className="feature-item group border-t border-white/10 pt-8">
+                <span className="font-sans text-white/20 text-[10px] tracking-[0.4em] uppercase block mb-4">
+                  {feature.num}
                 </span>
-              ))}
-            </div>
+                <span className="font-display text-white text-2xl md:text-3xl block mb-3 group-hover:text-[#c9a962] transition-colors duration-700">
+                  {feature.name}
+                </span>
+                <span className="font-sans text-white/40 text-sm">
+                  {feature.desc}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Decorative */}
-      <div className="absolute bottom-[30vh] right-[15vw] w-32 h-32 border border-cream/5 rounded-full" />
-      <div className="absolute top-[60vh] left-[40vw] w-1 h-1 bg-gold" />
+      {/* Wine cellar section */}
+      <div className="relative py-40 md:py-56 overflow-hidden">
+        {/* Background accent lines */}
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c9a962]/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c9a962]/20 to-transparent" />
+
+        <div className="px-8 md:px-16 lg:px-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+            <div className="lg:col-span-6">
+              <div className="flex items-center gap-6 mb-10">
+                <span className="w-12 h-px bg-[#c9a962]/40" />
+                <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                  La Cantina
+                </span>
+              </div>
+              <h3 className="font-display text-[14vw] md:text-[10vw] lg:text-[7vw] text-white leading-[0.9] mb-10">
+                Vini del
+                <span className="text-[#c9a962] block">Territorio</span>
+              </h3>
+              <p className="font-serif text-white/60 text-2xl md:text-3xl italic leading-relaxed mb-12">
+                Il sommelier Antonio Gilli guida attraverso etichette rare
+                e abbinamenti studiati per ogni portata.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                {['Trentino DOC', 'Alto Adige', 'Etichette Rare'].map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-6 py-3 border border-white/10 text-white/50 font-sans text-[9px] tracking-[0.3em] uppercase hover:border-[#c9a962]/30 hover:text-white/70 transition-all duration-500 cursor-pointer"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-4 lg:col-start-9 flex items-center">
+              <div>
+                <span className="font-display text-[25vw] md:text-[15vw] text-[#c9a962]/15 leading-none block">
+                  350
+                </span>
+                <span className="font-sans text-white/40 text-[10px] tracking-[0.4em] uppercase block mt-4">
+                  Etichette selezionate
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Lightbox */}
       <AnimatePresence>
@@ -243,20 +361,29 @@ export default function Location() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 cursor-pointer"
+            className="fixed inset-0 bg-[#0a0a0a]/98 z-50 flex items-center justify-center p-8 cursor-pointer"
             onClick={() => setSelectedImage(null)}
           >
             <motion.img
-              initial={{ scale: 0.7, opacity: 0, rotate: -5 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0.7, opacity: 0, rotate: 5 }}
-              transition={{ duration: 0.4 }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.5 }}
               src={selectedImage.src}
               alt={selectedImage.alt}
-              className="max-w-[90vw] max-h-[90vh] object-contain"
+              className="max-w-[90vw] max-h-[85vh] object-contain"
             />
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ delay: 0.2 }}
+              className="absolute bottom-12 left-1/2 -translate-x-1/2 font-display text-4xl text-white"
+            >
+              {selectedImage.caption}
+            </motion.span>
             <button
-              className="absolute top-8 right-8 text-cream/50 hover:text-cream text-3xl font-light"
+              className="absolute top-8 right-8 text-white/30 hover:text-white text-5xl font-light transition-colors duration-500"
               onClick={() => setSelectedImage(null)}
             >
               ×

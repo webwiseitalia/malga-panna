@@ -13,56 +13,85 @@ export default function Storia() {
   const image1Ref = useRef(null)
   const image2Ref = useRef(null)
   const quoteRef = useRef(null)
-  const numberRef = useRef(null)
+  const yearRef = useRef(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Title reveal with 3D rotation
       const titleSplit = new SplitType(titleRef.current, {
-        types: 'words',
+        types: 'chars',
         tagName: 'span'
       })
 
-      gsap.set(titleSplit.words, { y: 120, opacity: 0, rotate: 5 })
+      gsap.fromTo(titleSplit.chars,
+        { y: 150, opacity: 0, rotateX: -90 },
+        {
+          y: 0,
+          opacity: 1,
+          rotateX: 0,
+          duration: 1.4,
+          stagger: 0.02,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: titleRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
 
-      gsap.to(titleSplit.words, {
-        y: 0,
-        opacity: 1,
-        rotate: 0,
-        duration: 1.2,
-        stagger: 0.06,
-        ease: 'power3.out',
+      // Image 1 - cinematic scale reveal from dark
+      gsap.fromTo(image1Ref.current.querySelector('img'),
+        { scale: 1.4, filter: 'brightness(0.3)' },
+        {
+          scale: 1,
+          filter: 'brightness(1)',
+          duration: 2.5,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: image1Ref.current,
+            start: 'top 70%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
+
+      // Image 1 parallax
+      gsap.to(image1Ref.current.querySelector('img'), {
+        y: -150,
+        ease: 'none',
         scrollTrigger: {
-          trigger: titleRef.current,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse'
+          trigger: image1Ref.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.5
         }
       })
 
-      // Image 1 - dramatic reveal
-      gsap.fromTo(image1Ref.current,
-        { clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)', scale: 1.4, rotate: 3 },
+      // Year counter animation
+      gsap.fromTo(yearRef.current,
+        { innerText: 1900 },
         {
-          clipPath: 'polygon(0 0%, 100% 0%, 100% 100%, 0 100%)',
-          scale: 1,
-          rotate: 0,
-          duration: 1.8,
-          ease: 'power3.inOut',
+          innerText: 1994,
+          duration: 2,
+          ease: 'power2.out',
+          snap: { innerText: 1 },
           scrollTrigger: {
-            trigger: image1Ref.current,
+            trigger: yearRef.current,
             start: 'top 80%',
             toggleActions: 'play none none reverse'
           }
         }
       )
 
-      // Image 2 - different animation
+      // Image 2 - fade reveal
       gsap.fromTo(image2Ref.current,
-        { x: -200, opacity: 0, rotate: -8 },
+        { opacity: 0, y: 80, scale: 1.05 },
         {
-          x: 0,
           opacity: 1,
-          rotate: -3,
-          duration: 1.4,
+          y: 0,
+          scale: 1,
+          duration: 1.5,
           ease: 'power3.out',
           scrollTrigger: {
             trigger: image2Ref.current,
@@ -72,45 +101,23 @@ export default function Storia() {
         }
       )
 
-      // Parallax on images
-      gsap.to(image1Ref.current.querySelector('img'), {
-        y: -100,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1.5
-        }
+      // Quote - dramatic reveal
+      const quoteSplit = new SplitType(quoteRef.current, {
+        types: 'words',
+        tagName: 'span'
       })
 
-      // Big number animation
-      gsap.fromTo(numberRef.current,
-        { scale: 0.5, opacity: 0 },
+      gsap.fromTo(quoteSplit.words,
+        { y: 80, opacity: 0 },
         {
-          scale: 1,
-          opacity: 0.08,
-          duration: 1.5,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: numberRef.current,
-            start: 'top 90%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      )
-
-      // Quote slide in
-      gsap.fromTo(quoteRef.current,
-        { x: 200, opacity: 0 },
-        {
-          x: 0,
+          y: 0,
           opacity: 1,
-          duration: 1.4,
-          ease: 'power3.out',
+          duration: 1.2,
+          stagger: 0.04,
+          ease: 'power4.out',
           scrollTrigger: {
             trigger: quoteRef.current,
-            start: 'top 80%',
+            start: 'top 75%',
             toggleActions: 'play none none reverse'
           }
         }
@@ -122,137 +129,158 @@ export default function Storia() {
   }, [])
 
   return (
-    <section id="storia" ref={sectionRef} className="relative bg-cream-light overflow-hidden">
-      {/* Background number */}
-      <div
-        ref={numberRef}
-        className="absolute -top-[10vh] -left-[10vw] font-display text-[50vw] text-forest leading-none select-none pointer-events-none"
-      >
-        1900
-      </div>
-
-      {/* First block - irregular width */}
-      <div className="relative pt-[15vh] pb-[5vh]">
-        <div className="ml-[5vw] md:ml-[20vw] mr-[8vw] md:mr-[25vw]">
-          <span className="font-sans text-gold text-[10px] tracking-[0.5em] uppercase block mb-8">
-            Una storia di famiglia
-          </span>
-          <h2
-            ref={titleRef}
-            className="font-display text-[10vw] md:text-[7vw] text-forest leading-[0.9] tracking-[-0.02em]"
-          >
-            Una malga tra i boschi del Latemar che diventa leggenda
-          </h2>
-        </div>
-      </div>
-
-      {/* Image block - breaking grid completely */}
-      <div className="relative h-[80vh] md:h-[100vh]">
-        {/* Main image - oversized, bleeds */}
-        <div
-          ref={image1Ref}
-          className="absolute top-0 right-0 w-[85vw] md:w-[65vw] h-[70vh] md:h-[90vh] overflow-hidden"
-        >
-          <img
-            src={salaTradizionale}
-            alt="Sala tradizionale in legno di Malga Panna"
-            className="w-full h-[120%] object-cover"
-          />
-        </div>
-
-        {/* Secondary image - overlapping */}
-        <div
-          ref={image2Ref}
-          className="absolute bottom-[5vh] left-[3vw] md:left-[8vw] w-[45vw] md:w-[30vw] h-[35vh] md:h-[45vh] z-10 overflow-hidden shadow-2xl"
-          style={{ transform: 'rotate(-3deg)' }}
-        >
-          <img
-            src={naturaFoglia}
-            alt="Dettaglio naturale"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Floating text box - unusual position */}
-        <div className="absolute top-[15vh] left-[5vw] md:left-[10vw] w-[60vw] md:w-[35vw] bg-forest p-6 md:p-10 z-20">
-          <span className="text-gold font-sans text-[9px] tracking-[0.4em] uppercase block mb-4">
-            Il bisnonno Lattanzio
-          </span>
-          <p className="text-cream font-serif text-fluid-base italic leading-relaxed">
-            Costruì questa malga. La panna che produceva era così straordinariamente buona da dare il nome al luogo.
-          </p>
-          <div className="flex items-center gap-3 mt-6">
-            <span className="w-12 h-px bg-gold/50" />
-            <span className="text-cream/60 font-sans text-[10px] tracking-wider">
-              Inizio '900
+    <section id="storia" ref={sectionRef} className="relative bg-[#0a0a0a] overflow-hidden">
+      {/* Intro - ultra generous spacing */}
+      <div className="px-8 md:px-16 lg:px-24 pt-40 md:pt-56 pb-20 md:pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8">
+            <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.6em] uppercase block mb-10">
+              La Nostra Storia
             </span>
+            <h2
+              ref={titleRef}
+              className="font-display text-[12vw] md:text-[8vw] lg:text-[5.5vw] text-white leading-[0.95] tracking-[-0.03em]"
+              style={{ perspective: '1000px' }}
+            >
+              Una malga tra i boschi che diventa leggenda
+            </h2>
+          </div>
+          <div className="lg:col-span-3 lg:col-start-10 flex items-end">
+            <div className="hidden lg:block">
+              <span className="font-display text-[8vw] text-white/5 leading-none block">
+                1900
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Text section - radically offset */}
-      <div className="relative py-[10vh]">
-        <div className="ml-[50vw] md:ml-[55vw] mr-[5vw] md:mr-[10vw]">
-          <p className="text-forest font-sans text-fluid-base leading-[1.8] mb-8">
-            Quattro generazioni hanno custodito questo luogo a 1.400 metri.
-          </p>
-          <p className="text-forest/80 font-sans text-fluid-sm leading-relaxed">
-            Dai genitori che aprirono la trattoria per i primi villeggianti, fino a oggi.
-            Nel <strong className="text-forest">1994</strong>, Paolo Donei — a soli 19 anni —
-            diventa il più giovane chef d'Italia a ricevere la Stella Michelin.
-          </p>
-        </div>
+      {/* Hero image - full width, ultra dramatic */}
+      <div className="relative h-[80vh] md:h-[90vh] overflow-hidden" ref={image1Ref}>
+        <img
+          src={salaTradizionale}
+          alt="La sala tradizionale in legno"
+          className="absolute inset-0 w-full h-[130%] object-cover"
+        />
+        {/* Luxury gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/50 via-transparent to-transparent" />
 
-        {/* Big stat - floating */}
-        <div className="absolute top-[5vh] left-[8vw] md:left-[15vw]">
-          <span className="font-display text-[20vw] md:text-[15vw] text-gold/20 leading-none">30</span>
-          <span className="block font-sans text-[10px] text-forest/70 tracking-[0.3em] uppercase ml-2">
-            Stelle consecutive
+        {/* Floating caption */}
+        <div className="absolute bottom-16 left-8 md:left-16 lg:left-24 z-10">
+          <span className="font-sans text-white/40 text-[9px] tracking-[0.4em] uppercase block mb-2">
+            La Sala Storica
+          </span>
+          <span className="font-display text-white/80 text-2xl md:text-3xl">
+            Legno antico, calore alpino
           </span>
         </div>
       </div>
 
-      {/* Quote - full width but offset */}
-      <div className="relative py-[15vh] bg-forest -mx-[5vw] px-[5vw] skew-y-1">
-        <div className="skew-y-[-1deg]">
-          <div ref={quoteRef} className="ml-[10vw] md:ml-[25vw] mr-[5vw] md:mr-[15vw]">
-            <span className="absolute -top-[5vh] left-[5vw] text-gold/10 font-display text-[40vw] leading-none select-none">
-              "
-            </span>
-            <blockquote className="relative z-10">
-              <p className="font-serif text-[7vw] md:text-[4vw] text-cream italic leading-[1.2]">
-                Il cuoco non è una star,
-                <span className="text-gold block mt-2">è il cliente ad esserlo</span>
-              </p>
-              <footer className="mt-10 flex items-center gap-6">
-                <span className="w-20 h-px bg-gold/50" />
-                <span className="font-sans text-[11px] text-cream/80 tracking-[0.3em] uppercase">
-                  Paolo Donei
+      {/* Story content - luxury layout */}
+      <div className="px-8 md:px-16 lg:px-24 py-32 md:py-48">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32">
+          {/* Text column */}
+          <div className="lg:col-span-5">
+            <div className="lg:sticky lg:top-32">
+              <div className="flex items-center gap-6 mb-12">
+                <span className="w-16 h-px bg-[#c9a962]/40" />
+                <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                  Il bisnonno Lattanzio
                 </span>
+              </div>
+
+              <p className="font-serif text-3xl md:text-4xl text-white/90 italic leading-[1.3] mb-10">
+                Costruì questa malga. La panna che produceva era così straordinariamente buona
+                da dare il nome al luogo.
+              </p>
+
+              <p className="font-sans text-white/50 text-base leading-[2] mb-16">
+                Quattro generazioni hanno custodito questo luogo a 1.400 metri di altitudine.
+                Dai genitori che aprirono la trattoria per i primi villeggianti, fino ad oggi,
+                dove la tradizione incontra l'eccellenza gastronomica.
+              </p>
+
+              {/* Stats - ultra refined */}
+              <div className="flex gap-20">
+                <div>
+                  <span ref={yearRef} className="font-display text-7xl md:text-8xl text-[#c9a962]/30 leading-none block">
+                    1994
+                  </span>
+                  <span className="font-sans text-[9px] text-white/40 tracking-[0.4em] uppercase mt-4 block">
+                    Prima Stella
+                  </span>
+                </div>
+                <div>
+                  <span className="font-display text-7xl md:text-8xl text-white/10 leading-none block">
+                    30
+                  </span>
+                  <span className="font-sans text-[9px] text-white/40 tracking-[0.4em] uppercase mt-4 block">
+                    Anni Consecutivi
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Image column */}
+          <div className="lg:col-span-6 lg:col-start-7">
+            <div ref={image2Ref} className="relative aspect-[3/4] overflow-hidden">
+              <img
+                src={naturaFoglia}
+                alt="Dettaglio della natura circostante"
+                className="w-full h-full object-cover"
+              />
+              {/* Subtle overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/40 via-transparent to-transparent" />
+            </div>
+            <div className="mt-8 flex items-start gap-4">
+              <span className="w-8 h-px bg-white/20 mt-3" />
+              <p className="font-sans text-white/30 text-sm leading-relaxed max-w-xs">
+                I boschi del Latemar che circondano la malga, patrimonio mondiale UNESCO.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quote section - ultra dramatic */}
+      <div className="relative py-40 md:py-56 overflow-hidden">
+        {/* Background accent */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a]" />
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c9a962]/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#c9a962]/20 to-transparent" />
+
+        {/* Giant decorative quote */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          <span className="font-display text-[40vw] text-white/[0.02] leading-none">"</span>
+        </div>
+
+        <div className="relative px-8 md:px-16 lg:px-24">
+          <div className="max-w-5xl mx-auto text-center">
+            <blockquote>
+              <p
+                ref={quoteRef}
+                className="font-serif text-[7vw] md:text-[5vw] lg:text-[3.5vw] text-white italic leading-[1.2]"
+              >
+                Il cuoco non è una star,
+                <span className="text-[#c9a962] block mt-6">è il cliente ad esserlo</span>
+              </p>
+              <footer className="mt-20 flex flex-col items-center gap-6">
+                <span className="w-px h-16 bg-gradient-to-b from-transparent via-[#c9a962]/40 to-[#c9a962]" />
+                <div className="text-center">
+                  <span className="font-display text-xl text-white block mb-1">
+                    Paolo Donei
+                  </span>
+                  <span className="font-sans text-[9px] text-white/40 tracking-[0.4em] uppercase">
+                    Chef Patron
+                  </span>
+                </div>
               </footer>
             </blockquote>
           </div>
         </div>
       </div>
-
-      {/* Tags - scattered */}
-      <div className="relative py-[10vh]">
-        <div className="flex flex-wrap gap-4 ml-[15vw] mr-[30vw]">
-          {['Tradizione Trentina', 'Creatività', 'Ospitalità'].map((tag, i) => (
-            <span
-              key={tag}
-              className="px-6 py-3 border border-forest/30 text-forest font-sans text-[11px] tracking-[0.2em] uppercase hover:bg-forest hover:text-cream hover:border-forest transition-all duration-500"
-              style={{ transform: `rotate(${i % 2 === 0 ? -1 : 1}deg)` }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Decorative elements */}
-      <div className="absolute top-[30vh] right-[5vw] w-px h-[40vh] bg-gradient-to-b from-gold/20 via-gold/10 to-transparent hidden lg:block" />
-      <div className="absolute bottom-[20vh] left-[40vw] w-32 h-32 border border-forest/5 rounded-full hidden lg:block" />
     </section>
   )
 }

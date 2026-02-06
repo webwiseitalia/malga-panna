@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import SplitType from 'split-type'
 import paoloCristina from '../assets/foto/paolo-cristina-dolomiti.webp'
 import chefRitratto from '../assets/foto/chef-paolo-ritratto.webp'
 
@@ -8,71 +9,88 @@ gsap.registerPlugin(ScrollTrigger)
 
 export default function Chef() {
   const sectionRef = useRef(null)
-  const image1Ref = useRef(null)
-  const image2Ref = useRef(null)
+  const heroImageRef = useRef(null)
+  const portraitRef = useRef(null)
   const nameRef = useRef(null)
   const bioRef = useRef(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Name reveal - dramatic
-      gsap.fromTo(nameRef.current,
-        { y: 300, opacity: 0, skewY: 10 },
+      // Name reveal with 3D
+      const nameSplit = new SplitType(nameRef.current, {
+        types: 'chars',
+        tagName: 'span'
+      })
+
+      gsap.fromTo(nameSplit.chars,
+        { y: 180, opacity: 0, rotateX: -90 },
         {
           y: 0,
           opacity: 1,
-          skewY: 0,
-          duration: 1.5,
-          ease: 'power3.out',
+          rotateX: 0,
+          duration: 1.6,
+          stagger: 0.025,
+          ease: 'power4.out',
           scrollTrigger: {
             trigger: nameRef.current,
-            start: 'top 90%',
+            start: 'top 85%',
             toggleActions: 'play none none reverse'
           }
         }
       )
 
-      // Image 1 - scale from corner
-      gsap.fromTo(image1Ref.current,
-        { clipPath: 'circle(0% at 100% 0%)', scale: 1.3 },
+      // Hero image - cinematic entrance from dark
+      gsap.fromTo(heroImageRef.current.querySelector('img'),
+        { scale: 1.4, filter: 'brightness(0.2)' },
         {
-          clipPath: 'circle(150% at 100% 0%)',
           scale: 1,
-          duration: 2,
-          ease: 'power3.inOut',
+          filter: 'brightness(1)',
+          duration: 2.5,
+          ease: 'power2.out',
           scrollTrigger: {
-            trigger: image1Ref.current,
+            trigger: heroImageRef.current,
+            start: 'top 70%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
+
+      // Hero image parallax
+      gsap.to(heroImageRef.current.querySelector('img'), {
+        y: -180,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroImageRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.5
+        }
+      })
+
+      // Portrait reveal with clip-path
+      gsap.fromTo(portraitRef.current,
+        { clipPath: 'inset(100% 0 0 0)', scale: 1.1 },
+        {
+          clipPath: 'inset(0% 0 0 0)',
+          scale: 1,
+          duration: 1.8,
+          ease: 'power4.inOut',
+          scrollTrigger: {
+            trigger: portraitRef.current,
             start: 'top 75%',
             toggleActions: 'play none none reverse'
           }
         }
       )
 
-      // Image 2 - slide and rotate
-      gsap.fromTo(image2Ref.current,
-        { x: 200, rotate: 15, opacity: 0 },
+      // Bio text
+      const bioElements = bioRef.current.querySelectorAll('.bio-element')
+      gsap.fromTo(bioElements,
+        { y: 60, opacity: 0 },
         {
-          x: 0,
-          rotate: 5,
+          y: 0,
           opacity: 1,
-          duration: 1.4,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: image2Ref.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      )
-
-      // Bio text stagger
-      const bioLines = bioRef.current.querySelectorAll('p')
-      gsap.fromTo(bioLines,
-        { x: -80, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.9,
+          duration: 1.2,
           stagger: 0.15,
           ease: 'power3.out',
           scrollTrigger: {
@@ -83,37 +101,23 @@ export default function Chef() {
         }
       )
 
-      // Team members stagger with rotation
+      // Team
       const teamItems = sectionRef.current.querySelectorAll('.team-item')
-      teamItems.forEach((item, i) => {
-        gsap.fromTo(item,
-          { y: 100, opacity: 0, rotate: i % 2 === 0 ? 5 : -5 },
-          {
-            y: 0,
-            opacity: 1,
-            rotate: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: item,
-              start: 'top 90%',
-              toggleActions: 'play none none reverse'
-            }
+      gsap.fromTo(teamItems,
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          stagger: 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: teamItems[0],
+            start: 'top 90%',
+            toggleActions: 'play none none reverse'
           }
-        )
-      })
-
-      // Parallax on images
-      gsap.to(image1Ref.current, {
-        y: -80,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
         }
-      })
+      )
 
     }, sectionRef)
 
@@ -128,132 +132,165 @@ export default function Chef() {
   ]
 
   return (
-    <section id="chef" ref={sectionRef} className="relative bg-forest overflow-hidden">
-      {/* Giant name - positioned wildly */}
-      <div
-        ref={nameRef}
-        className="absolute top-[5vh] -left-[5vw] z-30 pointer-events-none"
-      >
-        <span className="font-display text-[25vw] md:text-[18vw] text-transparent leading-[0.85] tracking-[-0.03em]"
-          style={{ WebkitTextStroke: '1px rgba(197, 160, 40, 0.3)' }}
-        >
-          Paolo
-        </span>
-        <span className="block font-display text-[25vw] md:text-[18vw] text-gold/20 leading-[0.85] tracking-[-0.03em] -mt-[5vw] ml-[20vw]">
-          Donei
-        </span>
-      </div>
+    <section id="chef" ref={sectionRef} className="relative bg-[#0a0a0a] overflow-hidden">
+      {/* Hero section with name - ultra cinematic */}
+      <div className="relative min-h-[100vh] flex items-end">
+        {/* Fullscreen image */}
+        <div className="absolute inset-0 overflow-hidden" ref={heroImageRef}>
+          <img
+            src={paoloCristina}
+            alt="Paolo Donei e Cristina nelle Dolomiti"
+            className="absolute inset-0 w-full h-[130%] object-cover"
+          />
+          {/* Luxury gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/30 via-transparent to-transparent" />
+        </div>
 
-      {/* Main image - irregular position */}
-      <div
-        ref={image1Ref}
-        className="relative ml-[25vw] md:ml-[35vw] w-[75vw] md:w-[55vw] h-[90vh] overflow-hidden"
-      >
-        <img
-          src={paoloCristina}
-          alt="Paolo Donei e Cristina Ganzi"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-forest via-transparent to-transparent" />
-      </div>
+        {/* Name overlay */}
+        <div className="relative z-10 px-8 md:px-16 lg:px-24 pb-24 md:pb-40 w-full">
+          <div className="flex items-center gap-6 mb-10">
+            <span className="w-16 h-px bg-[#c9a962]/40" />
+            <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.6em] uppercase">
+              Chef Patron
+            </span>
+          </div>
+          <h2
+            ref={nameRef}
+            className="font-display text-[18vw] md:text-[14vw] lg:text-[11vw] text-white leading-[0.85] tracking-[-0.03em]"
+            style={{ perspective: '1000px' }}
+          >
+            Paolo
+            <span className="text-[#c9a962] block ml-[8%]">Donei</span>
+          </h2>
+        </div>
 
-      {/* Secondary image - overlapping */}
-      <div
-        ref={image2Ref}
-        className="absolute bottom-[15vh] left-[5vw] w-[40vw] md:w-[25vw] h-[50vh] z-20 overflow-hidden"
-        style={{ transform: 'rotate(5deg)' }}
-      >
-        <img
-          src={chefRitratto}
-          alt="Chef Paolo ritratto"
-          className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
-        />
-        <div className="absolute inset-0 border border-gold/20" />
-      </div>
-
-      {/* Bio content - unusual positioning */}
-      <div className="absolute top-[20vh] left-[8vw] w-[35vw] md:w-[25vw] z-20">
-        <span className="font-sans text-gold text-[9px] tracking-[0.5em] uppercase block mb-6">
-          Chef Patron
-        </span>
-        <div ref={bioRef} className="space-y-6">
-          <p className="text-cream font-serif text-fluid-lg italic leading-relaxed">
-            A soli <span className="text-gold">19 anni</span>, diventa
-            il più giovane chef d'Italia a ricevere la Stella Michelin.
-          </p>
-          <p className="text-cream/70 font-sans text-fluid-xs leading-relaxed">
-            La sua cucina racconta il territorio: ingredienti antichi, tecniche contemporanee.
-          </p>
+        {/* Floating age stat */}
+        <div className="absolute top-16 right-8 md:right-16 lg:right-24 z-10 text-right hidden md:block">
+          <div className="flex items-center gap-4">
+            <div>
+              <span className="font-sans text-white/30 text-[8px] tracking-[0.4em] uppercase block">
+                Stella a
+              </span>
+              <span className="font-sans text-white/30 text-[8px] tracking-[0.4em] uppercase block">
+                soli
+              </span>
+            </div>
+            <div className="w-px h-12 bg-white/10" />
+            <span className="font-display text-7xl text-white/10 leading-none">
+              19
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Stats - scattered wildly */}
-      <div className="absolute top-[60vh] right-[8vw] z-20">
-        <span className="font-display text-[15vw] md:text-[10vw] text-gold leading-none">1994</span>
-        <span className="block text-cream/70 font-sans text-[9px] tracking-[0.3em] uppercase mt-2">
-          Prima stella
-        </span>
-      </div>
+      {/* Content section - ultra luxury */}
+      <div className="relative px-8 md:px-16 lg:px-24 py-32 md:py-48">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32">
+          {/* Portrait */}
+          <div className="lg:col-span-5">
+            <div ref={portraitRef} className="relative aspect-[3/4] overflow-hidden">
+              <img
+                src={chefRitratto}
+                alt="Ritratto di Chef Paolo Donei"
+                className="w-full h-full object-cover"
+              />
+              {/* Subtle overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/30 via-transparent to-transparent" />
+            </div>
+            {/* Caption */}
+            <div className="mt-8 flex items-start gap-4">
+              <span className="w-8 h-px bg-white/20 mt-3" />
+              <p className="font-sans text-white/30 text-sm leading-relaxed">
+                Il più giovane chef stellato nella storia d'Italia
+              </p>
+            </div>
+          </div>
 
-      <div className="absolute top-[75vh] right-[30vw] z-20">
-        <span className="font-display text-[10vw] md:text-[6vw] text-cream/30 leading-none">30</span>
-        <span className="block text-cream/50 font-sans text-[9px] tracking-[0.3em] uppercase mt-1">
-          Consecutive
-        </span>
-      </div>
+          {/* Bio */}
+          <div className="lg:col-span-6 lg:col-start-7 flex flex-col justify-center" ref={bioRef}>
+            <p className="bio-element font-serif text-4xl md:text-5xl lg:text-6xl text-white italic leading-[1.15] mb-12">
+              A soli <span className="text-[#c9a962]">19 anni</span>, il più giovane chef stellato d'Italia.
+            </p>
 
-      {/* Team section - broken layout */}
-      <div className="relative py-[15vh] mt-[10vh]">
-        <div className="ml-[55vw] mr-[5vw] mb-12">
-          <span className="font-sans text-gold text-[10px] tracking-[0.4em] uppercase">
-            La Brigata
-          </span>
-        </div>
+            <p className="bio-element font-sans text-white/50 text-base md:text-lg leading-[2] mb-16 max-w-lg">
+              La sua cucina racconta il territorio: ingredienti antichi, tecniche contemporanee.
+              Un equilibrio tra tradizione contadina trentina e visione creativa che ha conquistato
+              la Stella Michelin per 30 anni consecutivi.
+            </p>
 
-        <div className="relative">
-          {team.map((member, i) => (
-            <div
-              key={member.name}
-              className="team-item"
-              style={{
-                marginLeft: `${10 + (i * 18)}vw`,
-                marginTop: i > 0 ? '-3vh' : '0',
-              }}
-            >
-              <div className="flex items-center gap-6 group">
-                <div className="w-16 h-16 border border-cream/10 flex items-center justify-center group-hover:bg-gold group-hover:border-gold transition-all duration-500">
-                  <span className="font-display text-fluid-lg text-cream/70 group-hover:text-forest transition-colors duration-500">
-                    {member.name.charAt(0)}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-serif text-cream text-fluid-sm block mb-1">
-                    {member.name}
-                  </span>
-                  <span className="font-sans text-gold text-[9px] tracking-[0.2em] uppercase">
-                    {member.role}
-                  </span>
-                </div>
+            {/* Stats row - ultra refined */}
+            <div className="bio-element flex gap-16 md:gap-24 pt-10 border-t border-white/10">
+              <div>
+                <span className="font-display text-6xl md:text-7xl text-[#c9a962]/30 leading-none block">
+                  1994
+                </span>
+                <span className="font-sans text-[9px] text-white/40 tracking-[0.4em] uppercase mt-4 block">
+                  Prima Stella
+                </span>
+              </div>
+              <div>
+                <span className="font-display text-6xl md:text-7xl text-white/10 leading-none block">
+                  30
+                </span>
+                <span className="font-sans text-[9px] text-white/40 tracking-[0.4em] uppercase mt-4 block">
+                  Anni Consecutivi
+                </span>
               </div>
             </div>
-          ))}
+
+            {/* JRE badge - refined */}
+            <div className="bio-element flex items-center gap-8 mt-16">
+              <div className="w-20 h-20 border border-[#c9a962]/30 flex items-center justify-center">
+                <span className="font-display text-[#c9a962] text-2xl tracking-wider">JRE</span>
+              </div>
+              <div>
+                <span className="font-sans text-white/80 text-base block mb-1">Jeunes Restaurateurs</span>
+                <span className="font-sans text-white/40 text-[10px] tracking-[0.3em] uppercase">d'Europe · Membro</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* JRE badge - floating */}
-      <div className="absolute bottom-[10vh] right-[15vw] z-20">
-        <div className="px-6 py-4 border border-gold/30 backdrop-blur-sm">
-          <span className="font-display text-gold text-fluid-xl">JRE</span>
-          <span className="block font-sans text-cream/70 text-[9px] tracking-[0.2em] uppercase mt-1">
-            Membro
-          </span>
+      {/* Team section - dark elegant */}
+      <div className="relative px-8 md:px-16 lg:px-24 py-32 md:py-40 border-t border-white/5">
+        {/* Background accent */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a]" />
+
+        <div className="relative">
+          <div className="mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+            <div>
+              <div className="flex items-center gap-6 mb-8">
+                <span className="w-12 h-px bg-[#c9a962]/40" />
+                <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                  La Brigata
+                </span>
+              </div>
+              <p className="font-serif text-3xl md:text-4xl text-white/90 italic max-w-lg">
+                Un team affiatato che condivide la stessa passione per l'eccellenza.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-16 gap-y-12">
+            {team.map((member, i) => (
+              <div key={member.name} className="team-item group border-t border-white/10 pt-8">
+                <span className="font-sans text-white/20 text-[10px] tracking-[0.4em] uppercase block mb-4">
+                  0{i + 1}
+                </span>
+                <span className="font-display text-white text-2xl md:text-3xl block mb-3 group-hover:text-[#c9a962] transition-colors duration-700">
+                  {member.name}
+                </span>
+                <span className="font-sans text-[#c9a962]/70 text-[10px] tracking-[0.4em] uppercase">
+                  {member.role}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Decorative */}
-      <div className="absolute top-[40vh] left-[50vw] w-px h-[30vh] bg-gradient-to-b from-gold/20 to-transparent" />
-      <div className="absolute bottom-[30vh] left-[30vw] w-20 h-20 border border-cream/5 rounded-full" />
-      <div className="absolute top-[25vh] right-[20vw] w-2 h-2 bg-gold/40" />
     </section>
   )
 }

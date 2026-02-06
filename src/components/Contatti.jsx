@@ -1,26 +1,35 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import SplitType from 'split-type'
 import { motion } from 'framer-motion'
+import verandaInverno from '../assets/foto/veranda-inverno.webp'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function Contatti() {
   const sectionRef = useRef(null)
   const titleRef = useRef(null)
+  const heroImageRef = useRef(null)
   const bookingRef = useRef(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Title dramatic reveal
-      gsap.fromTo(titleRef.current,
-        { x: -300, opacity: 0, skewX: -15 },
+      // Title reveal with 3D
+      const titleSplit = new SplitType(titleRef.current, {
+        types: 'chars',
+        tagName: 'span'
+      })
+
+      gsap.fromTo(titleSplit.chars,
+        { y: 150, opacity: 0, rotateX: -90 },
         {
-          x: 0,
+          y: 0,
           opacity: 1,
-          skewX: 0,
-          duration: 1.5,
-          ease: 'power3.out',
+          rotateX: 0,
+          duration: 1.4,
+          stagger: 0.02,
+          ease: 'power4.out',
           scrollTrigger: {
             trigger: titleRef.current,
             start: 'top 85%',
@@ -29,34 +38,59 @@ export default function Contatti() {
         }
       )
 
-      // Info items - scattered animation
-      const infoItems = sectionRef.current.querySelectorAll('.info-item')
-      infoItems.forEach((item, i) => {
-        gsap.fromTo(item,
-          { y: 100 + i * 20, opacity: 0, rotate: (i % 2 === 0 ? 5 : -5) },
-          {
-            y: 0,
-            opacity: 1,
-            rotate: 0,
-            duration: 1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: item,
-              start: 'top 90%',
-              toggleActions: 'play none none reverse'
-            }
-          }
-        )
-      })
-
-      // Booking box - scale and rotate
-      gsap.fromTo(bookingRef.current,
-        { scale: 0.7, opacity: 0, rotate: 5 },
+      // Hero image cinematic
+      gsap.fromTo(heroImageRef.current.querySelector('img'),
+        { scale: 1.4, filter: 'brightness(0.3)' },
         {
           scale: 1,
+          filter: 'brightness(1)',
+          duration: 2.5,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: heroImageRef.current,
+            start: 'top 70%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
+
+      // Hero parallax
+      gsap.to(heroImageRef.current.querySelector('img'), {
+        y: -100,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroImageRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.5
+        }
+      })
+
+      // Contact items
+      const contactItems = sectionRef.current.querySelectorAll('.contact-item')
+      gsap.fromTo(contactItems,
+        { y: 60, opacity: 0 },
+        {
+          y: 0,
           opacity: 1,
-          rotate: -2,
           duration: 1.2,
+          stagger: 0.15,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: contactItems[0],
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
+
+      // Booking box
+      gsap.fromTo(bookingRef.current,
+        { y: 100, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.4,
           ease: 'power3.out',
           scrollTrigger: {
             trigger: bookingRef.current,
@@ -72,214 +106,263 @@ export default function Contatti() {
   }, [])
 
   return (
-    <section id="contatti" ref={sectionRef} className="relative bg-cream-light overflow-hidden">
-      {/* Background giant text */}
-      <div className="absolute top-[5vh] -left-[15vw] font-display text-[40vw] text-forest/[0.02] leading-none pointer-events-none select-none">
-        INFO
-      </div>
-
-      {/* Header - extreme offset */}
-      <div className="relative pt-[20vh] pb-[10vh]">
-        <div ref={titleRef} className="ml-[3vw] md:ml-[10vw] mr-[20vw]">
-          <span className="font-sans text-gold text-[9px] tracking-[0.5em] uppercase block mb-8">
-            Val di Fassa — 1.400m
-          </span>
-          <h2 className="font-display text-[15vw] md:text-[12vw] text-forest leading-[0.85]">
-            Raggiungi
-            <span className="block text-gold italic ml-[25vw] -mt-[2vw]">la malga</span>
-          </h2>
-        </div>
-
-        {/* Floating description */}
-        <div className="absolute top-[35vh] right-[5vw] w-[30vw] md:w-[20vw]" style={{ transform: 'rotate(3deg)' }}>
-          <p className="font-sans text-forest/70 text-fluid-xs leading-relaxed">
-            A 2 km da Moena, seguendo le indicazioni per Passo San Pellegrino.
-          </p>
+    <section id="contatti" ref={sectionRef} className="relative bg-[#0a0a0a] overflow-hidden">
+      {/* Intro */}
+      <div className="px-8 md:px-16 lg:px-24 pt-40 md:pt-56 pb-20 md:pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8">
+            <div className="flex items-center gap-6 mb-10">
+              <span className="w-16 h-px bg-[#c9a962]/40" />
+              <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.6em] uppercase">
+                Contatti & Prenotazioni
+              </span>
+            </div>
+            <h2
+              ref={titleRef}
+              className="font-display text-[11vw] md:text-[8vw] lg:text-[5vw] text-white leading-[0.95] tracking-[-0.03em]"
+              style={{ perspective: '1000px' }}
+            >
+              Raggiungi la malga nel cuore delle Dolomiti
+            </h2>
+          </div>
         </div>
       </div>
 
-      {/* Contact info - wildly scattered */}
-      <div className="relative h-[80vh] md:h-[70vh]">
-        {/* Address */}
-        <div
-          className="info-item absolute top-0 left-[5vw] md:left-[15vw]"
-          style={{ transform: 'rotate(-2deg)' }}
-        >
-          <motion.div
-            className="group"
-            whileHover={{ x: 20, rotate: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <div className="flex items-start gap-6">
-              <div className="w-20 h-20 bg-forest flex items-center justify-center group-hover:bg-gold transition-colors duration-500">
-                <svg className="w-8 h-8 text-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div>
-                <span className="font-sans text-gold text-[9px] tracking-[0.4em] uppercase block mb-3">
-                  Indirizzo
-                </span>
-                <p className="font-serif text-forest text-fluid-lg leading-tight">
+      {/* Hero image - winter veranda */}
+      <div className="relative h-[60vh] md:h-[80vh] overflow-hidden" ref={heroImageRef}>
+        <img
+          src={verandaInverno}
+          alt="La veranda in inverno"
+          className="absolute inset-0 w-full h-[130%] object-cover"
+        />
+        {/* Luxury gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/50 via-transparent to-transparent" />
+      </div>
+
+      {/* Contact grid */}
+      <div className="px-8 md:px-16 lg:px-24 py-32 md:py-48">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32">
+          {/* Left column - Info */}
+          <div className="lg:col-span-5">
+            <div className="space-y-20">
+              {/* Address */}
+              <div className="contact-item">
+                <div className="flex items-center gap-6 mb-8">
+                  <span className="w-12 h-px bg-[#c9a962]/40" />
+                  <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                    Indirizzo
+                  </span>
+                </div>
+                <p className="font-serif text-4xl md:text-5xl text-white/90 italic leading-snug mb-8">
                   Strada de Sort 64<br />
                   38035 Moena (TN)
                 </p>
+                <p className="font-sans text-white/40 text-base leading-relaxed">
+                  A 2 km da Moena, seguendo le indicazioni per Passo San Pellegrino.
+                  Il ristorante si trova immerso nel bosco con vista sulle Dolomiti.
+                </p>
+              </div>
+
+              {/* Phone */}
+              <div className="contact-item">
+                <div className="flex items-center gap-6 mb-8">
+                  <span className="w-12 h-px bg-[#c9a962]/40" />
+                  <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                    Telefono
+                  </span>
+                </div>
+                <a
+                  href="tel:+390462573489"
+                  className="font-display text-6xl md:text-7xl text-white leading-none hover:text-[#c9a962] transition-colors duration-700 block mb-6"
+                >
+                  0462 573489
+                </a>
+                <a
+                  href="tel:+393337978223"
+                  className="font-sans text-white/40 text-lg hover:text-[#c9a962] transition-colors duration-500 block"
+                >
+                  +39 333 797 8223
+                </a>
+              </div>
+
+              {/* Hours */}
+              <div className="contact-item">
+                <div className="flex items-center gap-6 mb-8">
+                  <span className="w-12 h-px bg-[#c9a962]/40" />
+                  <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                    Orari
+                  </span>
+                </div>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-baseline border-b border-white/10 pb-6">
+                    <span className="font-sans text-white/30 text-[10px] tracking-[0.3em] uppercase">Pranzo</span>
+                    <span className="font-display text-3xl text-white">12:15 — 13:45</span>
+                  </div>
+                  <div className="flex justify-between items-baseline border-b border-white/10 pb-6">
+                    <span className="font-sans text-white/30 text-[10px] tracking-[0.3em] uppercase">Cena</span>
+                    <span className="font-display text-3xl text-white">19:30 — 22:00</span>
+                  </div>
+                </div>
+                <p className="font-sans text-white/30 text-sm mt-8">
+                  Chiuso lunedì e martedì a pranzo
+                </p>
               </div>
             </div>
-          </motion.div>
-        </div>
+          </div>
 
-        {/* Phone - different position */}
-        <div
-          className="info-item absolute top-[20vh] right-[10vw] md:right-[25vw]"
-          style={{ transform: 'rotate(3deg)' }}
-        >
-          <motion.div
-            className="group"
-            whileHover={{ x: -15, rotate: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <span className="font-sans text-gold text-[9px] tracking-[0.4em] uppercase block mb-3">
-              Telefono
-            </span>
-            <a href="tel:+390462573489" className="font-display text-[8vw] md:text-[5vw] text-forest leading-none hover:text-gold transition-colors duration-500 block">
-              0462 573489
-            </a>
-            <a href="tel:+393337978223" className="font-sans text-forest/70 text-fluid-xs mt-2 block hover:text-gold transition-colors duration-500">
-              +39 333 797 8223
-            </a>
-          </motion.div>
-        </div>
+          {/* Right column - Booking */}
+          <div className="lg:col-span-6 lg:col-start-7">
+            <div
+              id="prenota"
+              ref={bookingRef}
+              className="relative p-12 md:p-16 border border-white/10"
+            >
+              {/* Corner accent */}
+              <div className="absolute top-0 left-0 w-20 h-20 border-t border-l border-[#c9a962]/30" />
+              <div className="absolute bottom-0 right-0 w-20 h-20 border-b border-r border-[#c9a962]/30" />
 
-        {/* Hours - offset */}
-        <div
-          className="info-item absolute top-[45vh] left-[8vw] md:left-[40vw]"
-          style={{ transform: 'rotate(-1deg)' }}
-        >
-          <motion.div
-            whileHover={{ y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            <span className="font-sans text-gold text-[9px] tracking-[0.4em] uppercase block mb-4">
-              Orari
-            </span>
-            <div className="font-serif text-forest text-fluid-base leading-loose">
-              <p><span className="text-forest/60 font-sans text-[11px] tracking-wider mr-4">Pranzo</span>12:15 — 13:45</p>
-              <p><span className="text-forest/60 font-sans text-[11px] tracking-wider mr-4">Cena</span>19:30 — 22:00</p>
-            </div>
-            <p className="font-sans text-forest/60 text-[10px] tracking-wider mt-4">
-              Chiuso lunedì e martedì a pranzo
-            </p>
-          </motion.div>
-        </div>
+              <div className="flex items-center gap-6 mb-10">
+                <span className="w-12 h-px bg-[#c9a962]/40" />
+                <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                  Prenotazioni
+                </span>
+              </div>
 
-        {/* Email - floating */}
-        <div
-          className="info-item absolute top-[60vh] right-[5vw] md:right-[15vw]"
-        >
-          <a href="mailto:info@malgapanna.it" className="font-sans text-forest text-fluid-xs tracking-wider hover:text-gold transition-colors duration-500">
-            info@malgapanna.it
-          </a>
-        </div>
-      </div>
+              <h3 className="font-display text-[12vw] md:text-[7vw] text-white leading-[0.9] mb-10">
+                Riserva il
+                <span className="text-[#c9a962] block">tuo tavolo</span>
+              </h3>
 
-      {/* Booking section - dramatic placement */}
-      <div className="relative py-[15vh]">
-        <div
-          ref={bookingRef}
-          id="prenota"
-          className="ml-[40vw] md:ml-[50vw] mr-[5vw] md:mr-[10vw]"
-        >
-          <div className="relative bg-forest p-10 md:p-14">
-            {/* Shadow element */}
-            <div className="absolute -inset-4 bg-gold/30 -z-10 translate-x-6 translate-y-6" />
+              <p className="font-serif text-white/50 text-xl md:text-2xl italic leading-relaxed mb-14">
+                La prenotazione è consigliabile e gradita per garantire il miglior servizio.
+              </p>
 
-            <span className="font-sans text-gold text-[9px] tracking-[0.5em] uppercase block mb-6">
-              Prenotazioni
-            </span>
-            <h3 className="font-display text-[10vw] md:text-[5vw] text-cream leading-[0.9] mb-8">
-              Riserva<br />
-              <span className="text-gold ml-[5vw]">il tuo tavolo</span>
-            </h3>
+              <div className="space-y-6">
+                <motion.a
+                  href="tel:+390462573489"
+                  className="group flex items-center justify-between w-full py-6 px-8 bg-[#c9a962] text-[#0a0a0a]"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="font-sans text-[10px] tracking-[0.4em] uppercase font-medium">
+                    Chiama ora
+                  </span>
+                  <svg className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </motion.a>
 
-            <p className="font-sans text-cream/70 text-fluid-xs leading-relaxed mb-10 max-w-xs">
-              La prenotazione è consigliabile e gradita.
-            </p>
+                <motion.a
+                  href="mailto:info@malgapanna.it?subject=Prenotazione Tavolo"
+                  className="group flex items-center justify-between w-full py-6 px-8 border border-white/20 text-white hover:bg-white hover:text-[#0a0a0a] transition-all duration-500"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="font-sans text-[10px] tracking-[0.4em] uppercase">
+                    Scrivi email
+                  </span>
+                  <svg className="w-6 h-6 group-hover:translate-x-3 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </motion.a>
+              </div>
 
-            <div className="space-y-4">
-              <motion.a
-                href="tel:+390462573489"
-                className="group flex items-center justify-between w-full py-6 px-8 bg-gold text-forest font-sans text-[11px] tracking-[0.3em] uppercase"
-                whileHover={{ scale: 1.02, x: 10 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span>Chiama ora</span>
-                <svg className="w-5 h-5 group-hover:translate-x-3 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </motion.a>
-
-              <motion.a
-                href="mailto:info@malgapanna.it?subject=Prenotazione"
-                className="group flex items-center justify-between w-full py-6 px-8 border border-cream/20 text-cream font-sans text-[11px] tracking-[0.3em] uppercase hover:bg-cream hover:text-forest transition-colors duration-500"
-                whileHover={{ scale: 1.02, x: 10 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span>Scrivi email</span>
-                <svg className="w-5 h-5 group-hover:translate-x-3 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </motion.a>
+              <div className="mt-14 pt-8 border-t border-white/10">
+                <a
+                  href="mailto:info@malgapanna.it"
+                  className="font-sans text-white/40 text-base hover:text-[#c9a962] transition-colors duration-500"
+                >
+                  info@malgapanna.it
+                </a>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Directions - offset left */}
-        <div className="absolute top-[25vh] left-[5vw] w-[30vw] md:w-[25vw]" style={{ transform: 'rotate(-3deg)' }}>
-          <span className="font-sans text-gold text-[9px] tracking-[0.4em] uppercase block mb-4">
-            Come raggiungerci
-          </span>
-          <p className="font-sans text-forest/80 text-fluid-xs leading-relaxed">
-            Da Moena, seguire le indicazioni per Passo San Pellegrino per circa 2 km.
-          </p>
-          <div className="flex flex-wrap gap-2 mt-6">
-            {['Parcheggio', 'Navetta', 'EV'].map((tag, i) => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-forest/10 text-forest font-sans text-[9px] tracking-wider"
-                style={{ transform: `rotate(${i % 2 === 0 ? 2 : -2}deg)` }}
-              >
-                {tag}
+      {/* Directions section */}
+      <div className="relative py-32 md:py-40 border-t border-white/5">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0d0d0d] to-[#0a0a0a]" />
+
+        <div className="relative px-8 md:px-16 lg:px-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+            <div className="lg:col-span-5">
+              <div className="flex items-center gap-6 mb-10">
+                <span className="w-12 h-px bg-[#c9a962]/40" />
+                <span className="font-sans text-[#c9a962] text-[9px] tracking-[0.5em] uppercase">
+                  Come Raggiungerci
+                </span>
+              </div>
+              <p className="font-serif text-3xl md:text-4xl text-white/80 italic leading-relaxed mb-8">
+                Da Moena, seguire le indicazioni per Passo San Pellegrino per circa 2 km.
+              </p>
+              <p className="font-sans text-white/40 text-base leading-[2]">
+                Il ristorante si trova sulla destra, immerso nel bosco del Latemar con
+                vista privilegiata sulle cime dolomitiche, patrimonio UNESCO.
+              </p>
+            </div>
+            <div className="lg:col-span-5 lg:col-start-8">
+              <div className="grid grid-cols-2 gap-x-12 gap-y-10">
+                {[
+                  { label: 'Parcheggio', value: 'Privato gratuito' },
+                  { label: 'Navetta', value: 'Inverno su richiesta' },
+                  { label: 'Ricarica EV', value: 'Porsche Destination' },
+                  { label: 'Pet Friendly', value: 'Animali ammessi' },
+                ].map((item) => (
+                  <div key={item.label} className="contact-item border-t border-white/10 pt-6">
+                    <span className="font-sans text-white/30 text-[9px] tracking-[0.4em] uppercase block mb-3">
+                      {item.label}
+                    </span>
+                    <span className="font-serif text-white/70 text-lg">
+                      {item.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Map - full width with overlay */}
+      <div className="relative h-[50vh] md:h-[60vh]">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2745.1234567890123!2d11.7234567890123!3d46.3234567890123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDbCsDE5JzM0LjgiTiAxMcKwNDMnMjUuMCJF!5e0!3m2!1sit!2sit!4v1234567890123"
+          width="100%"
+          height="100%"
+          style={{ border: 0, filter: 'grayscale(100%) contrast(1.2) brightness(0.8)' }}
+          allowFullScreen=""
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Mappa Malga Panna"
+          className="hover:filter-none transition-all duration-1000"
+        />
+        {/* Map overlay with address */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent py-12 px-8 md:px-16 lg:px-24">
+          <div className="flex flex-wrap items-end justify-between gap-8">
+            <div>
+              <span className="font-display text-4xl md:text-5xl text-white leading-none block mb-3">
+                Malga Panna
               </span>
-            ))}
+              <span className="font-sans text-white/50 text-sm tracking-wider">
+                Strada de Sort 64, 38035 Moena (TN)
+              </span>
+            </div>
+            <a
+              href="https://goo.gl/maps/..."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-4"
+            >
+              <span className="font-sans text-[#c9a962] text-[10px] tracking-[0.4em] uppercase">
+                Apri in Google Maps
+              </span>
+              <span className="w-8 h-px bg-[#c9a962]/50 group-hover:w-12 group-hover:bg-[#c9a962] transition-all duration-500" />
+            </a>
           </div>
         </div>
       </div>
-
-      {/* Map section - skewed */}
-      <div className="relative -skew-y-2 my-[5vh]">
-        <div className="skew-y-2 ml-[10vw] mr-[20vw] md:mr-[35vw]">
-          <div className="relative h-[50vh] overflow-hidden" style={{ transform: 'rotate(1deg)' }}>
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2745.1234567890123!2d11.7234567890123!3d46.3234567890123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDbCsDE5JzM0LjgiTiAxMcKwNDMnMjUuMCJF!5e0!3m2!1sit!2sit!4v1234567890123"
-              width="100%"
-              height="100%"
-              style={{ border: 0, filter: 'grayscale(100%) contrast(1.2)' }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Mappa Malga Panna"
-              className="hover:filter-none transition-all duration-1000"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Decorative */}
-      <div className="absolute top-[30vh] right-[40vw] w-40 h-40 border border-forest/5 rounded-full" />
-      <div className="absolute bottom-[20vh] left-[60vw] w-px h-[20vh] bg-gradient-to-b from-gold/20 to-transparent" />
-      <div className="absolute top-[50vh] left-[3vw] w-2 h-2 bg-gold/30" />
     </section>
   )
 }
